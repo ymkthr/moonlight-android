@@ -54,6 +54,11 @@
             android:title="@string/title_checkbox_enable_audiofx"
             android:summary="@string/summary_checkbox_enable_audiofx"
             android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="checkbox_send_microphone"
+            android:title="@string/title_checkbox_send_microphone"
+            android:summary="@string/summary_checkbox_send_microphone"
+            android:defaultValue="false" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/category_gamepad_settings"
         android:key="category_gamepad_settings">

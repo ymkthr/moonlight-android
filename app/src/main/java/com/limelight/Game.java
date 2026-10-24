@@ -3,6 +3,7 @@ package com.limelight;
 
 import com.limelight.binding.PlatformBinding;
 import com.limelight.binding.audio.AndroidAudioRenderer;
+import com.limelight.binding.audio.MicStreamer;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.binding.input.capture.InputCaptureManager;
@@ -37,6 +38,7 @@ import com.limelight.utils.ShortcutHelper;
 import com.limelight.utils.SpinnerDialog;
 import com.limelight.utils.UiHelper;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -99,6 +101,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private long threeFingerDownTime = 0;
 
     private static final int REFERENCE_HORIZ_RES = 1280;
+    private static final int REQUEST_RECORD_AUDIO = 1001;
     private static final int REFERENCE_VERT_RES = 720;
 
     private static final int STYLUS_DOWN_DEAD_ZONE_DELAY = 100;
@@ -117,6 +120,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private SharedPreferences tombstonePrefs;
 
     private NvConnection conn;
+    private MicStreamer micStreamer;
     private SpinnerDialog spinner;
     private boolean displayedFailureDialog = false;
     private boolean connecting = false;
@@ -311,6 +315,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         pcName = Game.this.getIntent().getStringExtra(EXTRA_PC_NAME);
 
         String host = Game.this.getIntent().getStringExtra(EXTRA_HOST);
+        if (prefConfig.sendMicrophone) {
+            micStreamer = new MicStreamer(host, MicStreamer.DEFAULT_PORT);
+        }
         int port = Game.this.getIntent().getIntExtra(EXTRA_PORT, NvHTTP.DEFAULT_HTTP_PORT);
         int httpsPort = Game.this.getIntent().getIntExtra(EXTRA_HTTPS_PORT, 0); // 0 is treated as unknown
         int appId = Game.this.getIntent().getIntExtra(EXTRA_APP_ID, StreamConfiguration.INVALID_APP_ID);
@@ -2240,6 +2247,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             // thread to keep things smooth for the UI. Inside moonlight-common,
             // we prevent another thread from starting a connection before and
             // during the process of stopping this one.
+            if (micStreamer != null) {
+                micStreamer.stop();
+            }
             new Thread() {
                 public void run() {
                     conn.stop();
@@ -2412,6 +2422,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 }
 
                 connected = true;
+                startMicrophone();
                 connecting = false;
                 updatePipAutoEnter();
 
@@ -2447,6 +2458,37 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         if (appName != null) {
             // This may be null if launched from the "Resume Session" PC context menu item
             shortcutHelper.reportGameLaunched(computer, app);
+        }
+    }
+
+    private void startMicrophone() {
+        if (micStreamer == null) {
+            return;
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            micStreamer.start();
+        }
+        else {
+            requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_RECORD_AUDIO) {
+            boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            if (granted) {
+                if (connected && micStreamer != null) {
+                    micStreamer.start();
+                }
+            }
+            else {
+                Toast.makeText(this, getResources().getString(R.string.mic_permission_denied), Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

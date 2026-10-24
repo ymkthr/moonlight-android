@@ -42,6 +42,7 @@
     <string name="conn_error_msg">開始できません</string>
     <string name="conn_terminated_title">接続を終了</string>
     <string name="conn_terminated_msg">接続は終了しました</string>
+    <string name="mic_permission_denied">マイクの権限がないため、マイクを送りません</string>
     <!-- General strings -->
     <string name="ip_hint">ホストPCのIPアドレス</string>
     <string name="searching_pc">ローカルネットワーク上のホストPCを検索中…
@@ -80,6 +81,8 @@
     <string name="title_checkbox_disable_warnings">警告を無効化</string>
     <string name="summary_checkbox_disable_warnings">ストリーミング中に画面に警告メッセージを表示しない</string>
     <string name="category_audio_settings">音声</string>
+    <string name="title_checkbox_send_microphone">マイクをコンピュータへ送る</string>
+    <string name="summary_checkbox_send_microphone">接続中、このデバイスのマイク音声を RTP（UDP 46000）でコンピュータへ送ります</string>
     <string name="title_checkbox_multi_controller">複数のゲームコントローラ</string>
     <string name="summary_checkbox_multi_controller">チェックを外すと、全てのゲームコントローラが単一の物として認識されます</string>
     <string name="title_seekbar_deadzone">アナログゲームコントローラのデッドゾーン</string>
