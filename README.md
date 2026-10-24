@@ -1,3 +1,5 @@
+> **About this fork:** Moonlight Android with microphone streaming to the host over RTP (UDP 46000, S16BE / 48 kHz / mono) while connected. Enable it with "Send microphone to PC" in settings.
+
 # Moonlight Android
 
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/232a8tadrrn8jv0k/branch/master?svg=true)](https://ci.appveyor.com/project/cgutman/moonlight-android/branch/master)
